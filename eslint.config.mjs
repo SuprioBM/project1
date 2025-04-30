@@ -9,20 +9,25 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
+  // Override rules ONLY for generated files
   {
+    files: ["src/generated/**"],
     rules: {
-      // ✅ Disable unused vars warning
       "@typescript-eslint/no-unused-vars": "off",
       "no-unused-vars": "off",
+      "no-unused-expressions": "off",
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 
-      // ✅ Optional: loosen other common annoying errors
+  // You can keep global rule overrides here if truly needed
+  {
+    rules: {
       "react/jsx-key": "off",
       "react/react-in-jsx-scope": "off",
     },
   },
 ];
-
-export default eslintConfig;
