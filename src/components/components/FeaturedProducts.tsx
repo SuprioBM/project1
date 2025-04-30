@@ -4,15 +4,22 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string[];
+}
+
 const FeaturedProducts = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get("/api/products");
         // Optionally slice to show only a few featured ones
-        setProducts(res.data.slice(0, 6));
+        setProducts(res.data.slice(0, 6)); // Take the first 6 products
       } catch (error) {
         console.error("Failed to fetch products", error);
       }
