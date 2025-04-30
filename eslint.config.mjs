@@ -15,7 +15,7 @@ export default [
       "node_modules",
       ".next",
       "dist",
-      "prisma/generated",
+      "src/generated",
       "**/*.config.js",
       "**/*.config.mjs",
     ],
