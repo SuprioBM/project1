@@ -1,14 +1,15 @@
-// app/api/products/[slug]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../../lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> } // Awaiting params here
 ) {
+  const { slug } = await params; // Awaiting the params Promise
+
   try {
     const products = await prisma.product.findMany({
-      where: { category: params.slug.toLowerCase() },
+      where: { category: slug.toLowerCase() },
     });
 
     return NextResponse.json(products);
