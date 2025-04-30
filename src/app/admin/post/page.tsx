@@ -28,7 +28,6 @@ const AdminPostPage = () => {
       imageUrls: [], // URLs of images uploaded to Cloudinary
     });
 
-  const [images, setImages] = useState<File[]>([]); // Selected images
   const [imagePreviews, setImagePreviews] = useState<string[]>([]); // Preview URLs
 
   const [isFormValid, setIsFormValid] = useState(false); // To enable/disable submit button
@@ -55,33 +54,36 @@ const AdminPostPage = () => {
     } else {
       setIsFormValid(false);
     }
-  }, [form, images, imagePreviews]);
+  }, [form, imagePreviews]);
 
-  const fetchProduct = async (productId: string) => {
-    try {
-      const res = await axios.get(`/api/products/${productId}`);
-      const product = res.data;
-      const sizeInput = product.size
-        .map((s: any) => {
-          const key = Object.keys(s)[0];
-          const value = s[key];
-          return `${key}-${value}`;
-        })
-        .join(",");
-      setForm({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price.toString(),
-        link: product.link,
-        category: product.category,
-        sizeInput: sizeInput,
-        imageUrls: product.image,
-      });
-    } catch (error) {
-      console.error("Error fetching product data:", error);
-    }
-  };
+ const fetchProduct = async (productId: string) => {
+   try {
+     const res = await axios.get(`/api/products/${productId}`);
+     const product = res.data;
+
+     // Use correct typing for size
+     const sizeInput = (product.size as Record<string, number>[])
+       .map((s) => {
+         const key = Object.keys(s)[0];
+         const value = s[key];
+         return `${key}-${value}`;
+       })
+       .join(",");
+
+     setForm({
+       id: product.id,
+       name: product.name,
+       description: product.description,
+       price: product.price.toString(),
+       link: product.link,
+       category: product.category,
+       sizeInput: sizeInput,
+       imageUrls: product.image,
+     });
+   } catch (error) {
+     console.error("Error fetching product data:", error);
+   }
+ };
 
   const handleFormChange = (
     e: React.ChangeEvent<
@@ -116,7 +118,7 @@ const AdminPostPage = () => {
     const cloudinaryUrls: string[] = [];
 
     // Prepare the form data for Cloudinary upload
-    for (let file of files) {
+    for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "FashionValley");

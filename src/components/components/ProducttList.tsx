@@ -4,14 +4,24 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 
+// Define Product type
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  image: string[];
+  price: number;
+  size: Record<string, number>[]; // Adjust as needed
+};
+
 const ProductList = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("/api/products");
+        const res = await axios.get<Product[]>("/api/products");
         setProducts(res.data);
       } catch (error) {
         console.error("Error fetching products:", error);

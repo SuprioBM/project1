@@ -5,15 +5,25 @@ import { useCart } from "../../../components/context/CartContext";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
+// Define proper Product type
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string[];
+  size: Record<string, number>[]; // Optional: adjust if you use this on this page
+};
+
 export default function ProductPage() {
   const params = useParams();
   const id = params?.id as string;
   const { addToCart, cart } = useCart();
-  
-  const [product, setProduct] = useState<any>(null);
+
+  const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
-  
+
   useEffect(() => {
     console.log("Cart updated:", cart);
   }, [cart]);
@@ -22,7 +32,7 @@ export default function ProductPage() {
     const fetchProduct = async () => {
       const res = await fetch(`/api/products/${id}`);
       if (res.ok) {
-        const data = await res.json();
+        const data: Product = await res.json();
         setProduct(data);
       }
     };
@@ -36,16 +46,15 @@ export default function ProductPage() {
     }
 
     const cartItem = {
-      id: `${product.id}`,
-      name: product.name,
-      price: product.price,
+      id: product!.id,
+      name: product!.name,
+      price: product!.price.toString(),
       quantity,
       size: selectedSize,
     };
 
     addToCart(cartItem);
-    toast.success(`${product.name} added to cart!`);
-  
+    toast.success(`${product!.name} added to cart!`);
   };
 
   if (!product) return <div>Loading...</div>;

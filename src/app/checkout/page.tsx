@@ -2,13 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useCart } from "../../components/context/CartContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { loadStripe } from "@stripe/stripe-js";
-import Select from "react-select";
 
 
 export default function CheckoutPage() {
-  const [districts, setDistricts] = useState([]);
   const { cart } = useCart();
   const router = useRouter();
   // const stripePromise = loadStripe(
@@ -61,7 +59,7 @@ export default function CheckoutPage() {
         });
         
         
-        const result = await response.json();
+        await response.json();
         router.push("/confirmation");
 
    } else if (paymentMethod === "stripe") {

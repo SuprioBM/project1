@@ -8,6 +8,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation"
 import Link from "next/link";
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string[];
+}
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("products");
@@ -60,7 +66,7 @@ const AdminPage = () => {
     fetchOrders();
   }, []);
 
-  const handleEditProduct = (product: any) => {
+  const handleEditProduct = (product: Product) => {
     router.push(`/admin/post?id=${product.id}`);
   };
 
