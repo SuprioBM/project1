@@ -9,29 +9,26 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
+  {
+    ignores: [
+      "node_modules",
+      ".next",
+      "dist",
+      "prisma/generated",
+      "**/*.config.js",
+      "**/*.config.mjs",
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      // Disable unused variable rules globally
-      "@typescript-eslint/no-unused-vars": "off",
-      "no-unused-vars": "off",
-
-      // Disable unused expression rule globally
-      "no-unused-expressions": "off",
-
-      // Disable explicit any warning globally
+      // Silence some common noisy rules
+      "@next/next/no-img-element": "off",
+      "react/display-name": "off",
       "@typescript-eslint/no-explicit-any": "off",
-
-      // Disable empty object type warning globally
-      "@typescript-eslint/no-empty-object-type": "off",
-
-      // Optional: disable other common rules
-      "react/jsx-key": "off",
-      "react/react-in-jsx-scope": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
     },
-    ignorePatterns: ["generated/*"], // Ignore the 'generated' folder
   },
 ];
-
-export default eslintConfig;
