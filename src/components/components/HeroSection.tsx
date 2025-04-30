@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const HeroSection = () => {
   return (
-    <section className="relative w-full h-screen bg-cover bg-center bg-hero-image">
+    <section className="relative w-full bg-cover bg-center bg-hero-image">
       <div className="absolute inset-0">
         <Image
           src="/bg.jpg"
@@ -13,7 +13,7 @@ const HeroSection = () => {
           fill
           quality={100}
           priority
-          className="object-cover"
+          className="object-cover "
         />
       </div>
       {/* Dark overlay */}
@@ -39,7 +39,7 @@ const HeroSection = () => {
           </a>
         </div>
       </div>
-      <div className="-mt-40 sm:-mt-20 lg:-mt-3">
+      <div className="-mt-24 sm:-mt-20 lg:-mt-3">
         <BrandRoller />
       </div>
     </section>
