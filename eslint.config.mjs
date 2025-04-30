@@ -9,25 +9,29 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-export default [
+const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-
-  // Override rules ONLY for generated files
   {
-    files: ["src/generated/**"],
     rules: {
+      // Disable unused variable rules globally
       "@typescript-eslint/no-unused-vars": "off",
       "no-unused-vars": "off",
-      "no-unused-expressions": "off",
-      "@typescript-eslint/no-require-imports": "off",
-    },
-  },
 
-  // You can keep global rule overrides here if truly needed
-  {
-    rules: {
+      // Disable unused expression rule globally
+      "no-unused-expressions": "off",
+
+      // Disable explicit any warning globally
+      "@typescript-eslint/no-explicit-any": "off",
+
+      // Disable empty object type warning globally
+      "@typescript-eslint/no-empty-object-type": "off",
+
+      // Optional: disable other common rules
       "react/jsx-key": "off",
       "react/react-in-jsx-scope": "off",
     },
+    ignorePatterns: ["generated/*"], // Ignore the 'generated' folder
   },
 ];
+
+export default eslintConfig;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "../../../lib/prisma";
 
 // Handle GET and POST requests for checkout data
 export async function GET() {

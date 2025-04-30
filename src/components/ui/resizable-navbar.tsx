@@ -1,7 +1,6 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
-import { VideoText } from "../magicui/video-text";
 import {
   motion,
   AnimatePresence,
@@ -196,7 +195,6 @@ export const MobileNavMenu = ({
   children,
   className,
   isOpen,
-  onClose,
 }: MobileNavMenuProps) => {
   return (
     <AnimatePresence>
@@ -233,7 +231,7 @@ export const MobileNavToggle = ({
 
 export const NavbarLogo = () => {
   return (
-    <a
+    <Link
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
@@ -244,7 +242,7 @@ export const NavbarLogo = () => {
         height={30}
       />
       <span className="font-medium text-black dark:text-black">SHOP</span>
-    </a>
+    </Link>
   );
 };
 

@@ -14,18 +14,9 @@
     "jsx": "preserve",
     "incremental": true,
     "noUnusedLocals": false,
-"noUnusedParameters": false,
-"noFallthroughCasesInSwitch": false,
-
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules","src/generated"]
+  "exclude": ["node_modules", "generated"]
 }
