@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useCart } from "../../../components/context/CartContext";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
-import Image from "next/image";
 import { CarouselDemo } from "../../../components/components/Carousel";
 import TriangleLoader from "../../../components/components/Loader";// ✅ import loader
 
@@ -119,7 +118,7 @@ export default function ProductPage() {
         >
           <option value="">-- Choose a size --</option>
           {Object.entries(product.size)
-            .filter(([_, stock]) => stock > 0) // show only sizes with stock
+            .filter(([, stock]) => stock > 0) // show only sizes with stock
             .map(([size, stock]) => (
               <option key={size} value={size}>
                 {size.toUpperCase()} ({stock} available)

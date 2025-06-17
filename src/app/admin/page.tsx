@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 interface Product {
   id: string;
@@ -40,7 +38,6 @@ const AdminPage = () => {
   const [activeTab, setActiveTab] = useState<"products" | "checkout">(
     "products"
   );
-  const router = useRouter();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
