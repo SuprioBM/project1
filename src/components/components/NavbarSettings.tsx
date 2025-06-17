@@ -32,8 +32,8 @@ export function NavbarSettings() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="relative w-full bg-transparent">
-      <Navbar>
+    <div className="w-full bg-transparent">
+      <Navbar className="fixed">
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />

@@ -11,7 +11,8 @@ export async function GET(
     const products = await prisma.product.findMany({
       where: { category: slug.toLowerCase() },
     });
-
+    console.log(products);
+    
     return NextResponse.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);

@@ -1,19 +1,11 @@
-"use client";
-
+"use client"
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../../components/context/CartContext";
-import { useState } from "react";
-// import { loadStripe } from "@stripe/stripe-js";
-
 
 export default function CheckoutPage() {
   const { cart } = useCart();
   const router = useRouter();
-  // const stripePromise = loadStripe(
-  //   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-  // );
-
-
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,8 +16,8 @@ export default function CheckoutPage() {
     area: "",
     postalCode: "",
   });
-
   const [paymentMethod, setPaymentMethod] = useState("stripe");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -39,13 +31,31 @@ export default function CheckoutPage() {
     0
   );
 
- const handleSubmit = async () => {
-   if (!paymentMethod) {
-     alert("Please select a payment method.");
-     return;
-   }
+  const validateForm = () => {
+    for (const key in formData) {
+      if (!formData[key as keyof typeof formData]?.trim()) {
+        alert(`Please fill in the ${key} field.`);
+        return false;
+      }
+    }
+    if (!paymentMethod) {
+      alert("Please select a payment method.");
+      return false;
+    }
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return false;
+    }
+    return true;
+  };
 
-   if (paymentMethod === "cod") {
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+
+    try {
+      if (paymentMethod === "cod") {
         const response = await fetch("/api/checkout", {
           method: "POST",
           headers: {
@@ -57,34 +67,34 @@ export default function CheckoutPage() {
             paymentMethod,
           }),
         });
-        
-        
+
+        if (!response.ok) {
+          throw new Error("Checkout failed.");
+        }
+
         await response.json();
         router.push("/confirmation");
+      } else if (paymentMethod === "stripe") {
+        // Stripe payment logic here (uncomment when ready)
+        // const stripe = await stripePromise;
+        // const res = await fetch("/api/checkout", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({ items: cart, shippingInfo: formData }),
+        // });
+        // const session = await res.json();
+        // await stripe?.redirectToCheckout({ sessionId: session.id });
+      } else {
+        alert("Selected payment method not supported yet.");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("There was an error during checkout. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-   } else if (paymentMethod === "stripe") {
-     // Handle Stripe Payment
-     try {
-      //  const stripe = await stripePromise;
-      //  const res = await fetch("/api/checkout", {
-      //    method: "POST",
-      //    headers: { "Content-Type": "application/json" },
-      //    body: JSON.stringify({
-      //      items: cart,
-      //      shippingInfo: formData,
-      //    }),
-      //  });
-
-      //  const session = await res.json();
-      //  await stripe?.redirectToCheckout({ sessionId: session.id });
-     } catch (error) {
-       console.error("Stripe Checkout Error:", error);
-       alert("Stripe checkout failed.");
-     }
-   }
- };
-
- 
   return (
     <div className="p-8 pt-30 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
@@ -227,12 +237,19 @@ export default function CheckoutPage() {
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            className="px-6 py-3 bg-black text-white font-medium rounded"
+            disabled={loading}
+            className={`px-6 py-3 font-medium rounded text-white ${
+              loading
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-black hover:bg-gray-800"
+            }`}
           >
-            Place Order
+            {loading ? "Processing..." : "Place Order"}
           </button>
         </>
       )}
     </div>
   );
 }
+
+     

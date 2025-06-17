@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+import TriangleLoader from "../../../components/components/Loader";
 
 interface SizeObject {
   [key: string]: number;
@@ -10,10 +12,11 @@ interface SizeObject {
 interface Product {
   id: string;
   name: string;
-  size: SizeObject[]; // Expecting sizes as [{S: 3}, {M: 2}, ...]
+  size: SizeObject; // ✅ FIXED: changed from SizeObject[] to just SizeObject
   price: number;
   category: string;
-  image: string;
+  image: string[]; // Assuming a single image URL string
+  link: string;
 }
 
 export default function CategoryPage() {
@@ -24,6 +27,8 @@ export default function CategoryPage() {
   const [selectedSize, setSelectedSize] = useState("");
   const [maxPrice, setMaxPrice] = useState(500);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!slug) {
@@ -33,13 +38,14 @@ export default function CategoryPage() {
 
     const fetchProducts = async () => {
       try {
+        setLoading(true); // ✅ start loading
         const res = await fetch(`/api/products/category/${slug}`);
-        const data = await res.json();
+        const data: Product[] = await res.json();
 
-        const filteredProducts = data.filter((product: Product) => {
+        const filteredProducts = data.filter((product) => {
           const isMatchingSize =
             !selectedSize ||
-            product.size.some((s) => Object.keys(s)[0] === selectedSize);
+            (product.size && Object.keys(product.size).includes(selectedSize));
           const isWithinMaxPrice = product.price <= maxPrice;
           const isNameMatchingSearch = product.name
             .toLowerCase()
@@ -51,8 +57,11 @@ export default function CategoryPage() {
         setFiltered(filteredProducts);
       } catch (error) {
         console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false); // ✅ stop loading
       }
     };
+    
 
     fetchProducts();
   }, [slug, selectedSize, maxPrice, search]);
@@ -104,33 +113,35 @@ export default function CategoryPage() {
 
       {/* Product Grid */}
       <main className="w-full md:w-5/6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((product) => (
-          <div
-            key={product.id}
-            className="border p-4 rounded shadow-sm bg-white hover:shadow-md transition"
-          >
-            <img
-              src={product.image[0]}
-              alt={product.name}
-              className="w-full h-64 object-cover mb-4"
-            />
-            <h4 className="font-semibold text-lg">{product.name}</h4>
-            <p>
-              Size:{" "}
-              {Array.isArray(product.size)
-                ? product.size
-                    .map((s) => {
-                      const [label, value] = Object.entries(s)[0];
-                      return `${label}-${value}`;
-                    })
-                    .join(", ")
-                : "N/A"}
-            </p>
-            <p className="mt-1 font-semibold">${product.price}</p>
+        {loading ? (
+          <div className="col-span-full flex justify-center py-20">
+            <TriangleLoader />
           </div>
-        ))}
-
-        {filtered.length === 0 && (
+        ) : filtered.length > 0 ? (
+          filtered.map((product) => (
+            <Link href={`/products/${product.link}`} key={product.id}>
+              <div className="border p-4 rounded shadow-sm bg-white hover:shadow-md transition">
+                <img
+                  src={product.image[0]}
+                  alt={product.name}
+                  className="w-full h-64 object-cover mb-4"
+                />
+                <h4 className="font-semibold text-lg">{product.name}</h4>
+                <p>
+                  Size:{" "}
+                  {product.size
+                    ? Object.entries(product.size)
+                        .map(([label, quantity]) => `${label}-${quantity}`)
+                        .join(", ")
+                    : "N/A"}
+                </p>
+                <p className="mt-1 font-semibold">
+                  ${product.price.toFixed(2)}
+                </p>
+              </div>
+            </Link>
+          ))
+        ) : (
           <p className="col-span-full text-center text-gray-500">
             No products match the filters.
           </p>

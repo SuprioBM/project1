@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
+import TriangleLoader from "../../components/components/Loader";// ✅ import loader
 
 interface Product {
   id: string;
@@ -15,6 +17,7 @@ interface Product {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ loading state
   const [selectedSize, setSelectedSize] = useState("");
   const [maxPrice, setMaxPrice] = useState(500);
   const [search, setSearch] = useState("");
@@ -22,10 +25,13 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true); // ✅ start loading
         const res = await axios.get("/api/products");
         setProducts(res.data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false); // ✅ stop loading
       }
     };
 
@@ -45,27 +51,32 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="flex flex-col md:flex-row px-4 py-30 gap-6">
-      {/* Sidebar */}
-      <aside className="w-full md:w-1/6 space-y-6">
+    <div className="flex flex-col md:flex-row px-4 py-10 gap-8 max-w-7xl mx-auto">
+      {/* Sidebar Filters */}
+      <aside className="w-full md:w-1/5 bg-gray-50 p-4 rounded-lg border shadow-sm space-y-6">
+        {/* ... filter inputs unchanged ... */}
         <div>
-          <h3 className="font-semibold mb-2">Filter by Size</h3>
+          <h3 className="font-semibold mb-2 text-sm text-gray-700">
+            Filter by Size
+          </h3>
           <select
             onChange={(e) => setSelectedSize(e.target.value)}
             value={selectedSize}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded text-sm"
           >
-            <option value="">All</option>
+            <option value="">All Sizes</option>
             <option value="S">Small (S)</option>
             <option value="M">Medium (M)</option>
             <option value="L">Large (L)</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
+            <option value="XL">Extra Large (XL)</option>
+            <option value="XXL">Double XL (XXL)</option>
           </select>
         </div>
 
         <div>
-          <h3 className="font-semibold mb-2">Filter by Max Price</h3>
+          <h3 className="font-semibold mb-2 text-sm text-gray-700">
+            Max Price
+          </h3>
           <input
             type="range"
             min={0}
@@ -74,51 +85,65 @@ export default function ProductsPage() {
             onChange={(e) => setMaxPrice(Number(e.target.value))}
             className="w-full"
           />
-          <p className="text-sm mt-1">Up to ${maxPrice}</p>
+          <p className="text-xs mt-1 text-gray-500">Up to ${maxPrice}</p>
         </div>
 
         <div>
-          <h3 className="font-semibold mb-2">Search by Name</h3>
+          <h3 className="font-semibold mb-2 text-sm text-gray-700">Search</h3>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded text-sm"
           />
         </div>
       </aside>
 
       {/* Product Grid */}
-      <main className="md:w-5/6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filterProducts.map((product) => {
-          const sizeLabels = product.size
-            .map((s) => Object.keys(s)[0])
-            .join(", ");
-          return (
-            <Link
-              key={product.id}
-              href={`/products/${product.id}`}
-              className="border p-2 rounded shadow-sm bg-white hover:shadow-md transition h-40"
-            >
-              <div>
-                <div className="cursor-pointer flex flex-row">
-                  <img src={product.image[0]} alt="" className="w-10" />
-                  <div className="flex-col ml-4">
-                    <h4 className="font-semibold text-lg">{product.name}</h4>
-                    <p className="text-sm text-gray-600">Sizes: {sizeLabels}</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      ${product.price}
-                    </p>
-                  </div>
+      <main className="md:w-4/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          <div className="col-span-full flex justify-center py-20">
+            <TriangleLoader />
+          </div>
+        ) : filterProducts.length > 0 ? (
+          filterProducts.map((product) => {
+            return (
+              <Link
+                key={product.id}
+                href={`/products/${product.id}`}
+                className="border rounded-lg shadow-sm bg-white hover:shadow-md transition p-4 flex flex-col"
+              >
+                <div className="relative w-full h-48 rounded-md overflow-hidden mb-4">
+                  <Image
+                    src={product.image?.[0] || "/placeholder.png"}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
                 </div>
-              </div>
-            </Link>
-          );
-        })}
-
-        {filterProducts.length === 0 && (
-          <p className="col-span-full text-center text-gray-500">
+                <h4 className="font-semibold text-base mb-1 truncate">
+                  {product.name}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  {" "}
+                  Size:{" "}
+                  {product.size
+                    ? Object.entries(product.size)
+                        .map(([label, quantity]) => `${label}-${quantity}`)
+                        .join(", ")
+                    : "N/A"}
+                </p>
+                <p className="text-sm font-medium text-gray-900 mt-auto">
+                  ${product.price}
+                </p>
+              </Link>
+            );
+          })
+        ) : (
+          <p className="col-span-full text-center text-gray-500 text-base mt-10">
             No products match the filters.
           </p>
         )}

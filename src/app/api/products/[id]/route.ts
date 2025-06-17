@@ -19,7 +19,7 @@ export async function GET(
         { status: 404 }
       );
     }
-
+    console.log(product)
     return NextResponse.json(product);
   } catch (error) {
     console.error("GET /api/products/[id] error:", error);
