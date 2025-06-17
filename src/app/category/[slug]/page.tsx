@@ -119,7 +119,7 @@ export default function CategoryPage() {
           </div>
         ) : filtered.length > 0 ? (
           filtered.map((product) => (
-            <Link href={`/products/${product.link}`} key={product.id}>
+            <Link href={`/products/${product.id}`} key={product.id}>
               <div className="border p-4 rounded shadow-sm bg-white hover:shadow-md transition">
                 <img
                   src={product.image[0]}

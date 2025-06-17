@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../../components/context/CartContext";
 
 export default function CheckoutPage() {
-  const { cart } = useCart();
+  const { cart,clearCart } = useCart();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -73,6 +73,7 @@ export default function CheckoutPage() {
         }
 
         await response.json();
+        clearCart();
         router.push("/confirmation");
       } else if (paymentMethod === "stripe") {
         // Stripe payment logic here (uncomment when ready)

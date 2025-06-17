@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import TriangleLoader from "./Loader";
 
 interface Product {
   id: string;
@@ -14,14 +15,18 @@ interface Product {
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading,setLoading] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const res = await axios.get("/api/products");
         setProducts(res.data.slice(0, 6)); // Show first 6 products
       } catch (error) {
         console.error("Failed to fetch products", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -32,15 +37,19 @@ const FeaturedProducts = () => {
     <section className="py-16 bg-white" id="explore">
       <div className="container mx-auto px-4 text-center max-w-7xl">
         <h2 className="text-3xl font-bold mb-8">Featured Products</h2>
-
         <Link
           href="/products"
           className="inline-block text-blue-600 mb-6 hover:underline font-semibold"
-        >
+          >
           View More &rarr;
         </Link>
+       {loading ? (
+                 <div className="col-span-full flex justify-center py-20">
+                   <TriangleLoader />
+                 </div>
+               ) :
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
             <Link
               href={`/products/${product.id}`}
@@ -66,7 +75,8 @@ const FeaturedProducts = () => {
               </div>
             </Link>
           ))}
-        </div>
+        </div>)
+}
       </div>
     </section>
   );

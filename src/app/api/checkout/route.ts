@@ -10,21 +10,19 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { cart, formData, paymentMethod } = await request.json();
-    console.log("Received data:", { cart, formData, paymentMethod });
 
-    // Validate incoming data
+    // Validate required fields
     if (!cart || !formData || !paymentMethod) {
       return NextResponse.json(
-        { message: "Missing required data (cart, formdata, or paymentMethod)" },
+        { message: "Missing required data (cart, formData, or paymentMethod)" },
         { status: 400 }
       );
     }
 
     const { name, phone, email, address, districts, area, postalCode } =
       formData;
-    console.log({ cart, formData, paymentMethod });
 
-    // Create a new checkout entry in the database using Prisma
+    // Create a new checkout entry
     const newCheckout = await prisma.checkout.create({
       data: {
         name,
@@ -40,19 +38,19 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update product sizes quantity based on the cart
+    // Update product sizes' quantity
     for (const item of cart) {
-      // Fetch the product with its sizes
       const product = await prisma.product.findUnique({
         where: { id: item.id },
-        select: { size: true },
+        select: { size: true }, // size is assumed to be a JSON object
       });
 
       if (!product) {
         console.warn(`Product with id ${item.id} not found.`);
         continue;
       }
-
+      console.log(product.size);
+      
       const currentSizes = product.size;
       if (typeof currentSizes !== "object" || currentSizes === null) {
         console.warn(`Product size is not an object for product ${item.id}`);
@@ -61,16 +59,18 @@ export async function POST(request: Request) {
 
       const updatedSizes = { ...(currentSizes as Record<string, number>) };
 
-      for (const [sizeKey, qtyOrdered] of Object.entries(item.size)) {
-        if (updatedSizes[sizeKey] === undefined) {
-          console.warn(`Size key ${sizeKey} not found for product ${item.id}`);
-          continue;
-        }
-        updatedSizes[sizeKey] = Math.max(
-          Number(updatedSizes[sizeKey]) - Number(qtyOrdered),
-          0
-        );
+      const sizeKey = item.size;
+      const qtyOrdered = item.quantity;
+
+      if (updatedSizes[sizeKey] === undefined) {
+        console.warn(`Size ${sizeKey} not found for product ${item.id}`);
+        continue;
       }
+
+      updatedSizes[sizeKey] = Math.max(
+        Number(updatedSizes[sizeKey]) - Number(qtyOrdered),
+        0
+      );
 
       await prisma.product.update({
         where: { id: item.id },
